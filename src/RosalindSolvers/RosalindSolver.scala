@@ -23,15 +23,7 @@ class RosalindSolver extends App {
 		println("Finished copying to clipboard")
 	}
 	
-	abstract case class Codon
-	case class AminoAcid(nucleotides: String, letter: String) extends Codon
-	case class Stop(nucleotides: String) extends Codon
-	case class Start() extends AminoAcid("AUG", "M")
-	
-	def full_codon_map() : Map[String, Codon] = {
-//	  val codon_resource_url = getClass.getResource("codon_mappings.txt")
-//	  val codon_source = Source.fromURL(codon_resource_url)
-//	  val codon_lines = codon_source.getLines.map{_.split("\\s").toList}
+	def full_codon_map() : Map[String, String] = {
 	  val codon_lines = Source.fromString("""UUU F
 CUU L
 AUU I
@@ -96,15 +88,36 @@ UGG W
 CGG R
 AGG R
 GGG G""").getLines.map{_.split("\\s").toList}
-	  print(codon_lines.toList)
-	  val mapping = codon_lines.map{case (seq :: aa :: _) => (seq, aa match {
-	    case "M" => Start()
-	    case "Stop" => Stop(seq)
-	    case _ => AminoAcid(seq, aa)
-	  })}.toList.toMap
 	  
-	  return mapping
+	  codon_lines.map{case (seq :: aa :: _) => (seq, aa)}.toList.toMap
 	}
 	
+	def full_weight_map() : Map[Char, Double] = {
+	  val weight_lines = Source.fromString("""A 71.03711
+C 103.00919
+D 115.02694
+E 129.04259
+F 147.06841
+G 57.02146
+H 137.05891
+I 113.08406
+K 128.09496
+L 113.08406
+M 131.04049
+N 114.04293
+P 97.05276
+Q 128.05858
+R 156.10111
+S 87.03203
+T 101.04768
+V 99.06841
+W 186.07931
+Y 163.06333""").getLines.map{_.split("\\s").toList}
+	  
+	  return weight_lines.map{case (aa :: weight :: _) => (aa.first, weight.toDouble)}.toList.toMap
+    }
 	
+	val weight_mapping = full_weight_map()
+	
+	def amino_acid_weight(animo_acid : Char) : Double = weight_mapping(animo_acid)
 }
